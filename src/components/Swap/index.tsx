@@ -48,10 +48,14 @@ function usePoll(timeout: number) {
       }, delay)
     }
     loop(1, timeout)
-    return () => clearTimeout(t)
-  }, [])
+    return () => {
+      clearTimeout(t)
+    }
+  }, [timeout])
 
-  return timer
+  const resetTimer = () => setTimer(0)
+
+  return { timer, resetTimer }
 }
 
 export default function Swap(props: SwapProps) {
@@ -59,7 +63,7 @@ export default function Swap(props: SwapProps) {
   useSyncController(props as SwapController)
   useSyncConvenienceFee(props as FeeOptions)
   useSyncSwapEventHandlers(props as SwapEventHandlers)
-  const timer = usePoll(15000)
+  const { timer, resetTimer } = usePoll(15000)
 
   const [wrapper, setWrapper] = useState<HTMLDivElement | null>(null)
 
@@ -124,6 +128,8 @@ export default function Swap(props: SwapProps) {
               setDstTxSubStatus(undefined)
               setSnFetchedBalances({})
               setEvmFetchedBalances({})
+              resetTimer()
+              setTxCompleted(false)
             }}
           />
         </Dialog>

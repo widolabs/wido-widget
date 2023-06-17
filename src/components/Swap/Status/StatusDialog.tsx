@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import ErrorDialog, { StatusHeader } from 'components/Error/ErrorDialog'
 import SwapSummary from 'components/Swap/Summary'
 import { MS_IN_SECOND } from 'constants/misc'
-import { LargeAlert, LargeArrow, LargeCheck, LargeSpinner } from 'icons'
+import { LargeAlert, LargeArrow, LargeCheck, LargeSpinner, LargeWarning } from 'icons'
 import { useEffect, useMemo, useState } from 'react'
 import { SwapTransactionInfo, Transaction, TransactionType } from 'state/transactions'
 import { ThemedText, TransitionDuration } from 'theme'
@@ -29,8 +29,11 @@ function TransactionStatus({ tx, onClose, dstTxHash, dstTxSubStatus }: Transacti
     }
 
     if (tx.receipt?.status) {
-      if (dstTxHash && dstTxSubStatus !== 'completed') {
+      if (dstTxHash && dstTxSubStatus === 'failed') {
         return LargeAlert
+      }
+      if (dstTxHash && dstTxSubStatus !== 'completed') {
+        return LargeWarning
       }
       if (dstTxHash || isSingleChain) {
         return LargeCheck
@@ -55,6 +58,12 @@ function TransactionStatus({ tx, onClose, dstTxHash, dstTxSubStatus }: Transacti
       return <Trans>Transaction submitted</Trans>
     } else if (tx.info.type === TransactionType.SWAP) {
       if (tx.receipt?.status) {
+        if (dstTxHash && dstTxSubStatus === 'failed') {
+          return <Trans>Unsuccessful</Trans>
+        }
+        if (dstTxHash && dstTxSubStatus !== 'completed') {
+          return <Trans>Partial Success</Trans>
+        }
         if (dstTxHash || isSingleChain) {
           return <Trans>Success</Trans>
         }
@@ -66,7 +75,7 @@ function TransactionStatus({ tx, onClose, dstTxHash, dstTxSubStatus }: Transacti
       return tx.receipt?.status ? <Trans>Success</Trans> : <Trans>Unwrap pending</Trans>
     }
     return tx.receipt?.status ? <Trans>Success</Trans> : <Trans>Transaction pending</Trans>
-  }, [showConfirmation, tx.info.type, tx.receipt?.status, dstTxHash, isSingleChain])
+  }, [showConfirmation, tx.info.type, tx.receipt?.status, dstTxHash, isSingleChain, dstTxSubStatus])
 
   const subheading = useMemo(() => {
     if (isSingleChain && tx.receipt?.status) {
@@ -74,6 +83,9 @@ function TransactionStatus({ tx, onClose, dstTxHash, dstTxSubStatus }: Transacti
     }
     if (tx.receipt?.status && !dstTxHash) {
       return <Trans>Waiting for the second transaction...</Trans>
+    }
+    if (tx.receipt?.status && dstTxHash && dstTxSubStatus === 'failed') {
+      return <Trans>Your transaction was Unsuccessful</Trans>
     }
     if (tx.receipt?.status && dstTxHash && dstTxSubStatus !== 'completed') {
       return <Trans>Your transaction was partially successful</Trans>

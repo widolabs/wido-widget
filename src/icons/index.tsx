@@ -163,6 +163,10 @@ export const LargeCheck = styled(icon(LargeCheckIcon))<{ color?: Color }>`
   stroke: ${({ color = 'primary', theme }) => theme[color]};
 `
 
+export const LargeWarning = styled(icon(AlertTriangle))<{ color?: Color }>`
+  stroke: ${({ color = 'warning', theme }) => theme[color]};
+`
+
 export const LargeAlert = styled(LargeIcon).attrs({ icon: AlertTriangle, color: 'error', size: 6, strokeWidth: 1 })``
 
 export const LargeSpinner = styled(icon(LargeSpinnerIcon))<{ color?: Color }>`
