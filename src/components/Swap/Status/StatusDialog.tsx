@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import ErrorDialog, { StatusHeader } from 'components/Error/ErrorDialog'
 import SwapSummary from 'components/Swap/Summary'
 import { MS_IN_SECOND } from 'constants/misc'
-import { LargeArrow, LargeCheck, LargeSpinner } from 'icons'
+import { LargeAlert, LargeArrow, LargeCheck, LargeSpinner } from 'icons'
 import { useEffect, useMemo, useState } from 'react'
 import { SwapTransactionInfo, Transaction, TransactionType } from 'state/transactions'
 import { ThemedText, TransitionDuration } from 'theme'
@@ -13,10 +13,11 @@ import Column from '../../Column'
 interface TransactionStatusProps {
   tx: Transaction
   dstTxHash?: string
+  dstTxSubStatus?: string
   onClose: () => void
 }
 
-function TransactionStatus({ tx, onClose, dstTxHash }: TransactionStatusProps) {
+function TransactionStatus({ tx, onClose, dstTxHash, dstTxSubStatus }: TransactionStatusProps) {
   const fromChainId = (tx.info as SwapTransactionInfo).trade.fromToken.chainId
   const toChainId = (tx.info as SwapTransactionInfo).trade.toToken.chainId
   const isSingleChain = fromChainId === toChainId
@@ -28,12 +29,15 @@ function TransactionStatus({ tx, onClose, dstTxHash }: TransactionStatusProps) {
     }
 
     if (tx.receipt?.status) {
+      if (dstTxHash && dstTxSubStatus !== 'completed') {
+        return LargeAlert
+      }
       if (dstTxHash || isSingleChain) {
         return LargeCheck
       }
     }
     return LargeSpinner
-  }, [showConfirmation, tx.receipt?.status, dstTxHash, isSingleChain])
+  }, [showConfirmation, tx.receipt?.status, dstTxHash, isSingleChain, dstTxSubStatus])
 
   useEffect(() => {
     // We should show the confirmation for 1 second,
@@ -71,6 +75,9 @@ function TransactionStatus({ tx, onClose, dstTxHash }: TransactionStatusProps) {
     if (tx.receipt?.status && !dstTxHash) {
       return <Trans>Waiting for the second transaction...</Trans>
     }
+    if (tx.receipt?.status && dstTxHash && dstTxSubStatus !== 'completed') {
+      return <Trans>Your transaction was partially successful</Trans>
+    }
     if (tx.receipt?.status && dstTxHash) {
       return <Trans>Your transaction was successful</Trans>
     }
@@ -78,11 +85,14 @@ function TransactionStatus({ tx, onClose, dstTxHash }: TransactionStatusProps) {
       return <Trans>Waiting for the transaction...</Trans>
     }
     return <Trans>Waiting for the first transaction...</Trans>
-  }, [tx.receipt?.status, dstTxHash, isSingleChain])
+  }, [tx.receipt?.status, dstTxHash, isSingleChain, dstTxSubStatus])
 
   return (
     <Column flex padded gap={0.75} align="stretch" style={{ height: '100%' }}>
-      <StatusHeader icon={Icon} iconColor={tx.receipt?.status ? 'success' : undefined}>
+      <StatusHeader
+        icon={Icon}
+        iconColor={tx.receipt?.status ? (dstTxSubStatus !== 'completed' ? 'warning' : 'success') : undefined}
+      >
         <ThemedText.H4>{heading}</ThemedText.H4>
         {tx.info.type === TransactionType.SWAP ? (
           <SwapSummary
@@ -102,7 +112,7 @@ function TransactionStatus({ tx, onClose, dstTxHash }: TransactionStatusProps) {
   )
 }
 
-export default function TransactionStatusDialog({ tx, onClose, dstTxHash }: TransactionStatusProps) {
+export default function TransactionStatusDialog({ tx, onClose, dstTxHash, dstTxSubStatus }: TransactionStatusProps) {
   return tx.receipt?.status === 0 ? (
     <ErrorDialog
       header={<Trans>Your swap failed.</Trans>}
@@ -117,6 +127,6 @@ export default function TransactionStatusDialog({ tx, onClose, dstTxHash }: Tran
       onClick={onClose}
     />
   ) : (
-    <TransactionStatus tx={tx} dstTxHash={dstTxHash} onClose={onClose} />
+    <TransactionStatus tx={tx} dstTxHash={dstTxHash} dstTxSubStatus={dstTxSubStatus} onClose={onClose} />
   )
 }

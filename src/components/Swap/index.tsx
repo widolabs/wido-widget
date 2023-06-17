@@ -59,7 +59,7 @@ export default function Swap(props: SwapProps) {
   useSyncController(props as SwapController)
   useSyncConvenienceFee(props as FeeOptions)
   useSyncSwapEventHandlers(props as SwapEventHandlers)
-  const timer = usePoll(30000)
+  const timer = usePoll(15000)
 
   const [wrapper, setWrapper] = useState<HTMLDivElement | null>(null)
 
@@ -70,6 +70,7 @@ export default function Swap(props: SwapProps) {
     [txHash, pendingTxs]
   )
   const [dstTxHash, setDstTxHash] = useState<string | undefined>()
+  const [dstTxSubStatus, setDstTxSubStatus] = useState<string | undefined>()
   const [txCompleted, setTxCompleted] = useState<boolean>(false)
 
   useEffect(() => {
@@ -79,11 +80,12 @@ export default function Swap(props: SwapProps) {
     getStatus({
       chainId: tx.info.trade.fromToken.chainId,
       txHash: tx.receipt.transactionHash,
-    }).then(({ status, toTxHash }) => {
+    }).then(({ status, toTxHash, substatus }) => {
       if (status === 'success') {
         setTxCompleted(true)
       }
       setDstTxHash(toTxHash)
+      setDstTxSubStatus(substatus)
     })
   }, [tx, txCompleted, timer])
 
@@ -115,9 +117,11 @@ export default function Swap(props: SwapProps) {
           <StatusDialog
             tx={tx}
             dstTxHash={dstTxHash}
+            dstTxSubStatus={dstTxSubStatus}
             onClose={() => {
               setDisplayTxHash()
               setDstTxHash(undefined)
+              setDstTxSubStatus(undefined)
               setSnFetchedBalances({})
               setEvmFetchedBalances({})
             }}
