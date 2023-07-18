@@ -103,7 +103,7 @@ const NumericInput = forwardRef<HTMLInputElement, EnforcedInputProps>(function N
       // text-specific options
       type="text"
       pattern={pattern}
-      placeholder={props.placeholder || '0'}
+      placeholder={props.placeholder || '0.0'}
       minLength={1}
       maxLength={79}
       spellCheck="false"
