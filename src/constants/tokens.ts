@@ -468,6 +468,10 @@ function isMatic(chainId: number): chainId is SupportedChainId.POLYGON | Support
   return chainId === SupportedChainId.POLYGON_MUMBAI || chainId === SupportedChainId.POLYGON
 }
 
+function isBSC(chainId: number): boolean {
+  return chainId === SupportedChainId.BSC
+}
+
 class MaticNativeCurrency extends NativeCurrency {
   equals(other: Currency): boolean {
     return other.isNative && other.chainId === this.chainId
@@ -483,6 +487,24 @@ class MaticNativeCurrency extends NativeCurrency {
   public constructor(chainId: number) {
     if (!isMatic(chainId)) throw new Error('Not matic')
     super(chainId, 18, 'MATIC', 'Polygon Matic')
+  }
+}
+
+class BSCNativeCurrency extends NativeCurrency {
+  equals(other: Currency): boolean {
+    return other.isNative && other.chainId === this.chainId
+  }
+
+  get wrapped(): Token {
+    if (!isBSC(this.chainId)) throw new Error('Not BSC')
+    const wrapped = WRAPPED_NATIVE_CURRENCY[this.chainId]
+    invariant(wrapped instanceof Token)
+    return wrapped
+  }
+
+  public constructor(chainId: number) {
+    if (!isBSC(chainId)) throw new Error('Not BSC')
+    super(chainId, 18, 'BNB', 'BNB')
   }
 }
 
@@ -508,6 +530,8 @@ export function nativeOnChain(chainId: number): NativeCurrency | Token {
     nativeCurrency = new MaticNativeCurrency(chainId)
   } else if (isCelo(chainId)) {
     nativeCurrency = getCeloNativeCurrency(chainId)
+  } else if (isBSC(chainId)) {
+    nativeCurrency = new BSCNativeCurrency(chainId)
   } else {
     nativeCurrency = ExtendedEther.onChain(chainId)
   }
