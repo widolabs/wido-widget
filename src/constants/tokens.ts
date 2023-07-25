@@ -454,6 +454,13 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
     'WBNB',
     'Wrapped BNB'
   ),
+  [SupportedChainId.FANTOM]: new Token(
+    SupportedChainId.FANTOM,
+    '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+    18,
+    'WFTM',
+    'Wrapped FTM'
+  ),
 }
 
 export function isCelo(chainId: number): chainId is SupportedChainId.CELO | SupportedChainId.CELO_ALFAJORES {
@@ -477,6 +484,10 @@ function isMatic(chainId: number): chainId is SupportedChainId.POLYGON | Support
 
 function isBSC(chainId: number): boolean {
   return chainId === SupportedChainId.BSC
+}
+
+function isFantom(chainId: number): boolean {
+  return chainId === SupportedChainId.FANTOM
 }
 
 class MaticNativeCurrency extends NativeCurrency {
@@ -515,6 +526,24 @@ class BSCNativeCurrency extends NativeCurrency {
   }
 }
 
+class FantomNativeCurrency extends NativeCurrency {
+  equals(other: Currency): boolean {
+    return other.isNative && other.chainId === this.chainId
+  }
+
+  get wrapped(): Token {
+    if (!isFantom(this.chainId)) throw new Error('Not Fantom')
+    const wrapped = WRAPPED_NATIVE_CURRENCY[this.chainId]
+    invariant(wrapped instanceof Token)
+    return wrapped
+  }
+
+  public constructor(chainId: number) {
+    if (!isFantom(chainId)) throw new Error('Not Fantom')
+    super(chainId, 18, 'FTM', 'FTM')
+  }
+}
+
 export class ExtendedEther extends Ether {
   public get wrapped(): Token {
     const wrapped = WRAPPED_NATIVE_CURRENCY[this.chainId]
@@ -539,6 +568,8 @@ export function nativeOnChain(chainId: number): NativeCurrency | Token {
     nativeCurrency = getCeloNativeCurrency(chainId)
   } else if (isBSC(chainId)) {
     nativeCurrency = new BSCNativeCurrency(chainId)
+  } else if (isFantom(chainId)) {
+    nativeCurrency = new FantomNativeCurrency(chainId)
   } else {
     nativeCurrency = ExtendedEther.onChain(chainId)
   }
