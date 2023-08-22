@@ -25,6 +25,7 @@ const CaptionRow = styled(Row)<{ gap: number; shrink?: number }>`
   flex-shrink: ${({ shrink }) => shrink ?? 1};
   gap: ${({ gap }) => gap}em;
   height: 100%;
+  max-width: 100%;
 `
 
 // TODO (tina): consolidate this and Expando icon
