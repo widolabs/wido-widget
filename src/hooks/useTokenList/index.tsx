@@ -64,9 +64,17 @@ export function TestableProvider({ list, children }: PropsWithChildren<{ list: T
   return <ChainTokenMapContext.Provider value={chainTokenMap}>{children}</ChainTokenMapContext.Provider>
 }
 
-export function Provider({ list, children }: PropsWithChildren<{ list?: string | TokenInfo[] }>) {
-  const [chainTokenMap, setChainTokenMap] = useState<ChainTokenMap>({})
-  useEffect(() => setChainTokenMap({}), [list])
+export function Provider({
+  children,
+  cacheTokens,
+}: PropsWithChildren<{ list?: string | TokenInfo[]; cacheTokens?: boolean }>) {
+  const { saveToLocalStorage: saveTokensToLocalStorage, getFromLocalStorage: getTokensFromLocalStorage } =
+    createLocalStorageHandlers<Token[]>('wido_tokens')
+
+  const tokensFromLocalStorage = cacheTokens && getTokensFromLocalStorage()
+  const [chainTokenMap, setChainTokenMap] = useState<ChainTokenMap>(
+    tokensFromLocalStorage ? tokensToChainTokenMap(tokensFromLocalStorage) : {}
+  )
 
   const chainId = useEvmChainId()
   const provider = useEvmProvider()
@@ -94,6 +102,7 @@ export function Provider({ list, children }: PropsWithChildren<{ list?: string |
     async function activateList() {
       try {
         const tokens = await getSupportedTokens()
+        if (cacheTokens) saveTokensToLocalStorage(tokens)
         // tokensToChainTokenMap also caches the fetched tokens, so it must be invoked even if stale.
         const map = tokensToChainTokenMap(tokens)
         if (!stale) {
@@ -106,7 +115,7 @@ export function Provider({ list, children }: PropsWithChildren<{ list?: string |
         }
       }
     }
-  }, [chainTokenMap, list, resolver, throwError])
+  }, [cacheTokens, chainTokenMap, resolver, saveTokensToLocalStorage, throwError])
 
   return <ChainTokenMapContext.Provider value={chainTokenMap}>{children}</ChainTokenMapContext.Provider>
 }
@@ -134,4 +143,27 @@ export function useWidgetToTokens(): TokenListItem[] {
   if (presetTokens) return presetTokens
 
   return allTokens.filter((x) => VISIBLE_CHAIN_IDS.includes(x.chainId))
+}
+
+function createLocalStorageHandlers<T>(key: string) {
+  return {
+    saveToLocalStorage: (data: T): void => {
+      try {
+        const serializedData = JSON.stringify(data)
+        localStorage.setItem(key, serializedData)
+      } catch {
+        //
+      }
+    },
+
+    getFromLocalStorage: (): T | undefined => {
+      try {
+        const serializedData = localStorage.getItem(key)
+        if (serializedData === null) return undefined
+        return JSON.parse(serializedData) as T
+      } catch {
+        return undefined
+      }
+    },
+  }
 }
