@@ -51,7 +51,12 @@ export const routing = createApi({
           return { data: quoteResult }
         } catch (error: any) {
           console.error(`GetQuote failed on routing API: ${error?.message ?? error?.detail ?? error}`)
-          return { error: { status: 'CUSTOM_ERROR', error: error?.message ?? error?.detail ?? error } }
+          return {
+            error: {
+              status: 'CUSTOM_ERROR',
+              error: error?.detail && error.detail.length > 0 ? error.detail : error?.message ?? error,
+            },
+          }
         }
       },
       keepUnusedDataFor: ms`10s`,
