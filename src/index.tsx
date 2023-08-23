@@ -69,7 +69,6 @@ export type WidoWidgetProps = {
    * Defaults to the quote function from the wido sdk. Can be used to override the default behavior.
    */
   quoteApi?: (request: QuoteRequest) => Promise<QuoteResult>
-  cacheTokens?: boolean
 }
 
 export function WidoWidget(props: WidoWidgetProps) {

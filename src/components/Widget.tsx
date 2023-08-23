@@ -39,7 +39,6 @@ export interface WidgetProps extends Flags, TransactionEventHandlers, WidgetEven
   dialog?: HTMLDivElement | null
   className?: string
   onError?: OnError
-  cacheTokens?: boolean
 }
 
 export default function Widget(props: PropsWithChildren<WidgetProps>) {
@@ -62,9 +61,7 @@ export default function Widget(props: PropsWithChildren<WidgetProps>) {
                       <TokenBalancesProvider>
                         <MulticallUpdater />
                         <TransactionsUpdater {...(props as TransactionEventHandlers)} />
-                        <TokenListProvider list={props.tokenList} cacheTokens={props.cacheTokens}>
-                          {props.children}
-                        </TokenListProvider>
+                        <TokenListProvider list={props.tokenList}>{props.children}</TokenListProvider>
                       </TokenBalancesProvider>
                     </BlockNumberProvider>
                   </AtomProvider>

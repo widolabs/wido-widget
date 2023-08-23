@@ -65,14 +65,11 @@ export function TestableProvider({ list, children }: PropsWithChildren<{ list: T
   return <ChainTokenMapContext.Provider value={chainTokenMap}>{children}</ChainTokenMapContext.Provider>
 }
 
-export function Provider({
-  children,
-  cacheTokens,
-}: PropsWithChildren<{ list?: string | TokenInfo[]; cacheTokens?: boolean }>) {
+export function Provider({ children }: PropsWithChildren<{ list?: string | TokenInfo[] }>) {
   const { saveToLocalStorage: saveTokensToLocalStorage, getFromLocalStorage: getTokensFromLocalStorage } =
     createLocalStorageHandlers<Token[]>('wido_tokens')
 
-  const tokensFromLocalStorage = cacheTokens !== false && getTokensFromLocalStorage()
+  const tokensFromLocalStorage = getTokensFromLocalStorage()
   const [chainTokenMap, setChainTokenMap] = useState<ChainTokenMap>(
     tokensFromLocalStorage ? tokensToChainTokenMap(tokensFromLocalStorage) : {}
   )
@@ -103,7 +100,7 @@ export function Provider({
     async function activateList() {
       try {
         const tokens = await getSupportedTokens()
-        if (cacheTokens !== false) saveTokensToLocalStorage(tokens)
+        saveTokensToLocalStorage(tokens)
         // tokensToChainTokenMap also caches the fetched tokens, so it must be invoked even if stale.
         const map = tokensToChainTokenMap(tokens)
         if (!stale) {
@@ -116,7 +113,7 @@ export function Provider({
         }
       }
     }
-  }, [cacheTokens, chainTokenMap, resolver, saveTokensToLocalStorage, throwError])
+  }, [chainTokenMap, resolver, saveTokensToLocalStorage, throwError])
 
   return <ChainTokenMapContext.Provider value={chainTokenMap}>{children}</ChainTokenMapContext.Provider>
 }
