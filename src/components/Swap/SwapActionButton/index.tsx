@@ -3,6 +3,8 @@ import { ChainError, useSwapInfo } from 'hooks/swap'
 import { SwapApprovalState } from 'hooks/swap/useSwapApproval'
 import { useIsWrap } from 'hooks/swap/useWrapCallback'
 import { useEvmAccountAddress, useSnAccountAddress } from 'hooks/useSyncWidgetSettings'
+import { widgetSettingsAtom } from 'hooks/useSyncWidgetSettings'
+import { useAtomValue } from 'jotai/utils'
 import { useMemo } from 'react'
 import { Field } from 'state/swap'
 import { isStarknetChain } from 'utils/starknet'
@@ -35,8 +37,25 @@ export default function SwapActionButton() {
   const srcWalletConnected = isStarknetChain(inputCurrency?.chainId) ? snAccount : account
   const dstWalletConnected = isStarknetChain(outputCurrency?.chainId) ? snAccount : account
 
+  const { toTokens, fromTokens } = useAtomValue(widgetSettingsAtom)
+  const fromTokensCommonChainId =
+    fromTokens &&
+    fromTokens[0] &&
+    (fromTokens.every((t) => t.chainId === fromTokens[0].chainId) ? fromTokens[0].chainId : undefined)
+  const toTokensCommonChainId =
+    toTokens &&
+    toTokens[0] &&
+    (toTokens.every((t) => t.chainId === toTokens[0].chainId) ? toTokens[0].chainId : undefined)
+  const isDstStarknet = isStarknetChain(toTokensCommonChainId)
+
   if (!inputCurrency && !outputCurrency) {
-    return <SwapButton disabled={isDisabled} />
+    if (fromTokensCommonChainId && !srcWalletConnected) {
+      return <ConnectWalletButton chainId={fromTokensCommonChainId} />
+    } else if (toTokensCommonChainId && isDstStarknet && !dstWalletConnected) {
+      return <ConnectWalletButton chainId={toTokensCommonChainId} />
+    } else {
+      return <SwapButton disabled={isDisabled} />
+    }
   } else if (inputCurrency && !srcWalletConnected) {
     return <ConnectWalletButton chainId={inputCurrency.chainId} />
   } else if (outputCurrency && !dstWalletConnected) {
