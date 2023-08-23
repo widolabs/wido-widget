@@ -46,14 +46,21 @@ export default function SwapActionButton() {
     toTokens &&
     toTokens[0] &&
     (toTokens.every((t) => t.chainId === toTokens[0].chainId) ? toTokens[0].chainId : undefined)
-  const isDstStarknet = isStarknetChain(toTokensCommonChainId)
+  const isToTokensEVM = toTokens && toTokens.every((t) => !isStarknetChain(t.chainId))
+  const isFromTokensEVM = fromTokens && fromTokens.every((t) => !isStarknetChain(t.chainId))
 
   if (!inputCurrency && !outputCurrency) {
-    if (fromTokensCommonChainId && !srcWalletConnected) {
+    if (fromTokensCommonChainId && (isStarknetChain(fromTokensCommonChainId) ? !snAccount : !account)) {
+      // If the 'From' tokens are on the same chain then a 'Connect' button with this chain should appear
       return <ConnectWalletButton chainId={fromTokensCommonChainId} />
-    } else if (toTokensCommonChainId && isDstStarknet && !dstWalletConnected) {
+    } else if ((isToTokensEVM || isFromTokensEVM) && !account) {
+      // If the 'From' or 'To' tokens are on the EVM chain then a 'Connect' button with the Ethereum chain should appear
+      return <ConnectWalletButton chainId={1} />
+    } else if (toTokensCommonChainId && isStarknetChain(toTokensCommonChainId) && !snAccount) {
+      // If the 'To' tokens are on StarkNet, then a 'Connect' button with StarkNet chain should appear
       return <ConnectWalletButton chainId={toTokensCommonChainId} />
     } else {
+      // If none of these apply, then a 'Select tokens' disabled button should be displayed
       return <SwapButton disabled={isDisabled} />
     }
   } else if (inputCurrency && !srcWalletConnected) {
