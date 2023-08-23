@@ -2,7 +2,8 @@ import { NativeCurrency, Token } from '@uniswap/sdk-core'
 import { TokenInfo, TokenList } from '@uniswap/token-lists'
 import { nativeOnChain } from 'constants/tokens'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { Token as WidoToken, ZERO_ADDRESS } from 'wido'
+import { createLocalStorageHandlers } from 'utils/localStorage'
+import { getSupportedTokens, Token as WidoToken, ZERO_ADDRESS } from 'wido'
 
 export type TokenListItem = WrappedTokenInfo | Token | NativeCurrency
 type TokenMap = Readonly<{ [tokenAddress: string]: { token: TokenListItem; list?: TokenList } }>
@@ -43,4 +44,17 @@ export function tokensToChainTokenMap(tokens: WidoToken[]): ChainTokenMap {
   }, {}) as ChainTokenMap
   mapCache?.set(tokens, map)
   return map
+}
+
+export async function prefetchTokens() {
+  try {
+    const { saveToLocalStorage, getFromLocalStorage } = createLocalStorageHandlers<WidoToken[]>('wido_tokens')
+    const tokensFromLocalStorage = getFromLocalStorage()
+    if (!tokensFromLocalStorage) {
+      const tokens = await getSupportedTokens()
+      saveToLocalStorage(tokens)
+    }
+  } catch {
+    //
+  }
 }

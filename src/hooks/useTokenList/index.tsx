@@ -4,6 +4,7 @@ import { SupportedChainId, VISIBLE_CHAIN_IDS } from 'constants/chains'
 import { useEvmChainId, useEvmProvider, widgetSettingsAtom } from 'hooks/useSyncWidgetSettings'
 import { useAtomValue } from 'jotai/utils'
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createLocalStorageHandlers } from 'utils/localStorage'
 import resolveENSContentHash from 'utils/resolveENSContentHash'
 import { getSupportedTokens, Token } from 'wido'
 
@@ -64,9 +65,14 @@ export function TestableProvider({ list, children }: PropsWithChildren<{ list: T
   return <ChainTokenMapContext.Provider value={chainTokenMap}>{children}</ChainTokenMapContext.Provider>
 }
 
-export function Provider({ list, children }: PropsWithChildren<{ list?: string | TokenInfo[] }>) {
-  const [chainTokenMap, setChainTokenMap] = useState<ChainTokenMap>({})
-  useEffect(() => setChainTokenMap({}), [list])
+export function Provider({ children }: PropsWithChildren<{ list?: string | TokenInfo[] }>) {
+  const { saveToLocalStorage: saveTokensToLocalStorage, getFromLocalStorage: getTokensFromLocalStorage } =
+    createLocalStorageHandlers<Token[]>('wido_tokens')
+
+  const tokensFromLocalStorage = getTokensFromLocalStorage()
+  const [chainTokenMap, setChainTokenMap] = useState<ChainTokenMap>(
+    tokensFromLocalStorage ? tokensToChainTokenMap(tokensFromLocalStorage) : {}
+  )
 
   const chainId = useEvmChainId()
   const provider = useEvmProvider()
@@ -94,6 +100,7 @@ export function Provider({ list, children }: PropsWithChildren<{ list?: string |
     async function activateList() {
       try {
         const tokens = await getSupportedTokens()
+        saveTokensToLocalStorage(tokens)
         // tokensToChainTokenMap also caches the fetched tokens, so it must be invoked even if stale.
         const map = tokensToChainTokenMap(tokens)
         if (!stale) {
@@ -106,7 +113,7 @@ export function Provider({ list, children }: PropsWithChildren<{ list?: string |
         }
       }
     }
-  }, [chainTokenMap, list, resolver, throwError])
+  }, [chainTokenMap, resolver, saveTokensToLocalStorage, throwError])
 
   return <ChainTokenMapContext.Provider value={chainTokenMap}>{children}</ChainTokenMapContext.Provider>
 }
