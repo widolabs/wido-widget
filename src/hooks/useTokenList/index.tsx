@@ -4,6 +4,7 @@ import { SupportedChainId, VISIBLE_CHAIN_IDS } from 'constants/chains'
 import { useEvmChainId, useEvmProvider, widgetSettingsAtom } from 'hooks/useSyncWidgetSettings'
 import { useAtomValue } from 'jotai/utils'
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createLocalStorageHandlers } from 'utils/localStorage'
 import resolveENSContentHash from 'utils/resolveENSContentHash'
 import { getSupportedTokens, Token } from 'wido'
 
@@ -71,7 +72,7 @@ export function Provider({
   const { saveToLocalStorage: saveTokensToLocalStorage, getFromLocalStorage: getTokensFromLocalStorage } =
     createLocalStorageHandlers<Token[]>('wido_tokens')
 
-  const tokensFromLocalStorage = cacheTokens && getTokensFromLocalStorage()
+  const tokensFromLocalStorage = cacheTokens !== false && getTokensFromLocalStorage()
   const [chainTokenMap, setChainTokenMap] = useState<ChainTokenMap>(
     tokensFromLocalStorage ? tokensToChainTokenMap(tokensFromLocalStorage) : {}
   )
@@ -102,7 +103,7 @@ export function Provider({
     async function activateList() {
       try {
         const tokens = await getSupportedTokens()
-        if (cacheTokens) saveTokensToLocalStorage(tokens)
+        if (cacheTokens !== false) saveTokensToLocalStorage(tokens)
         // tokensToChainTokenMap also caches the fetched tokens, so it must be invoked even if stale.
         const map = tokensToChainTokenMap(tokens)
         if (!stale) {
@@ -143,27 +144,4 @@ export function useWidgetToTokens(): TokenListItem[] {
   if (presetTokens) return presetTokens
 
   return allTokens.filter((x) => VISIBLE_CHAIN_IDS.includes(x.chainId))
-}
-
-function createLocalStorageHandlers<T>(key: string) {
-  return {
-    saveToLocalStorage: (data: T): void => {
-      try {
-        const serializedData = JSON.stringify(data)
-        localStorage.setItem(key, serializedData)
-      } catch {
-        //
-      }
-    },
-
-    getFromLocalStorage: (): T | undefined => {
-      try {
-        const serializedData = localStorage.getItem(key)
-        if (serializedData === null) return undefined
-        return JSON.parse(serializedData) as T
-      } catch {
-        return undefined
-      }
-    },
-  }
 }
