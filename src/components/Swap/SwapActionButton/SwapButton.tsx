@@ -38,6 +38,7 @@ export default function SwapButton({ disabled }: { disabled: boolean }) {
   const color = useTokenColorExtraction()
   const isAmountPopulated = useIsAmountPopulated()
   const missingInput = inputCurrency != null && outputCurrency != null && !isAmountPopulated
+  const missingCurrency = !inputCurrency || !outputCurrency
 
   const permit2Enabled = usePermit2Enabled()
   const { callback: swapCallback } = useSwapCallback({
@@ -94,7 +95,7 @@ export default function SwapButton({ disabled }: { disabled: boolean }) {
   return (
     <>
       <ActionButton color={color} onClick={onClick} disabled={disabled}>
-        <Trans>{missingInput ? 'Enter an amount' : 'Review'}</Trans>
+        <Trans>{missingInput ? 'Enter an amount' : missingCurrency ? 'Select token' : 'Review'}</Trans>
       </ActionButton>
       {open && trade && (
         <Dialog color="container" onClose={() => setOpen(false)}>
