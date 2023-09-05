@@ -20,6 +20,7 @@ export const MULTICALL_ADDRESS: AddressMap = {
   [SupportedChainId.FANTOM]: '0x112235fE5C511277b21b70532c8Cd338e5ab74Df',
   [SupportedChainId.BSC]: '0x018b527df898381a690a5e9DD4633310d005837b',
   [SupportedChainId.AVALANCHE]: '0xEB15D8C563E08332C228Ad9b93a9ba9235375d18',
+  [SupportedChainId.BASE]: '0x919dF3aDbF5cfC9fcfd43198EDFe5aA5561CB456',
 }
 
 export const SWAP_ROUTER_ADDRESSES: AddressMap = {
