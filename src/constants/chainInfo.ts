@@ -2,6 +2,7 @@ import ethereumLogoUrl from 'assets/images/ethereum-logo.png'
 import arbitrumLogoUrl from 'assets/svg/arbitrum_logo.svg'
 import auroraLogo from 'assets/svg/aurora-logo.svg'
 import avalancheLogo from 'assets/svg/avalanche-logo.svg'
+import baseLogo from 'assets/svg/base-logo.svg'
 import bscLogo from 'assets/svg/bsc-logo.svg'
 import celoLogo from 'assets/svg/celo_logo.svg'
 import optimismLogoUrl from 'assets/svg/optimism_logo.svg'
@@ -318,6 +319,19 @@ const CHAIN_INFO: ChainInfoMap = {
     logoUrl: avalancheLogo,
     nativeCurrency: { name: 'AVAX', symbol: 'AVAX', decimals: 18 },
     color: '#a12424',
+    backgroundColor: '#0A0903',
+  },
+  [SupportedChainId.BASE]: {
+    networkType: NetworkType.L2,
+    blockWaitMsBeforeWarning: ms`10m`,
+    bridge: '',
+    docs: '',
+    explorer: 'https://basescan.org/',
+    infoLink: 'https://info.uniswap.org/#/',
+    label: 'Base',
+    logoUrl: baseLogo,
+    nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+    color: '#20308a',
     backgroundColor: '#0A0903',
   },
 }

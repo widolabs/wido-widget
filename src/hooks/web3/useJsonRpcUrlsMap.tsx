@@ -38,6 +38,7 @@ function toJsonRpcMap<T>(getChainConnections: (chainId: SupportedChainId) => T):
     [SupportedChainId.AURORA_TESTNET]: getChainConnections(SupportedChainId.AURORA_TESTNET),
     [SupportedChainId.BSC]: getChainConnections(SupportedChainId.BSC),
     [SupportedChainId.AVALANCHE]: getChainConnections(SupportedChainId.AVALANCHE),
+    [SupportedChainId.BASE]: getChainConnections(SupportedChainId.BASE),
   }
 }
 

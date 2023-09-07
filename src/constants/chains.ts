@@ -31,6 +31,8 @@ export enum SupportedChainId {
   BSC = 56,
 
   AVALANCHE = 43114,
+
+  BASE = 8453,
 }
 
 export const VISIBLE_CHAIN_IDS: number[] = [
@@ -42,6 +44,7 @@ export const VISIBLE_CHAIN_IDS: number[] = [
   SupportedChainId.FANTOM,
   SupportedChainId.BSC,
   SupportedChainId.AVALANCHE,
+  SupportedChainId.BASE,
 ]
 
 export enum ChainName {
@@ -62,26 +65,7 @@ export enum ChainName {
   AURORA_TESTNET = 'aurora-testnet',
   BSC = 'bsc',
   AVALANCHE = 'avalanche',
-}
-
-export const CHAIN_NAMES_TO_IDS: { [chainName: string]: SupportedChainId } = {
-  [ChainName.MAINNET]: SupportedChainId.MAINNET,
-  [ChainName.ROPSTEN]: SupportedChainId.ROPSTEN,
-  [ChainName.RINKEBY]: SupportedChainId.RINKEBY,
-  [ChainName.GOERLI]: SupportedChainId.GOERLI,
-  [ChainName.KOVAN]: SupportedChainId.KOVAN,
-  [ChainName.POLYGON]: SupportedChainId.POLYGON,
-  [ChainName.POLYGON_MUMBAI]: SupportedChainId.POLYGON_MUMBAI,
-  [ChainName.ARBITRUM_ONE]: SupportedChainId.ARBITRUM_ONE,
-  [ChainName.ARBITRUM_RINKEBY]: SupportedChainId.ARBITRUM_RINKEBY,
-  [ChainName.OPTIMISM]: SupportedChainId.OPTIMISM,
-  [ChainName.OPTIMISM_GOERLI]: SupportedChainId.OPTIMISM_GOERLI,
-  [ChainName.CELO]: SupportedChainId.CELO,
-  [ChainName.CELO_ALFAJORES]: SupportedChainId.CELO_ALFAJORES,
-  [ChainName.AURORA]: SupportedChainId.AURORA,
-  [ChainName.AURORA_TESTNET]: SupportedChainId.AURORA_TESTNET,
-  [ChainName.BSC]: SupportedChainId.BSC,
-  [ChainName.AVALANCHE]: SupportedChainId.AVALANCHE,
+  BASE = 'base',
 }
 
 /**
@@ -90,17 +74,6 @@ export const CHAIN_NAMES_TO_IDS: { [chainName: string]: SupportedChainId } = {
 export const ALL_SUPPORTED_CHAIN_IDS: SupportedChainId[] = Object.values(SupportedChainId).filter(
   (id) => typeof id === 'number'
 ) as SupportedChainId[]
-
-export const SUPPORTED_GAS_ESTIMATE_CHAIN_IDS = [
-  SupportedChainId.MAINNET,
-  SupportedChainId.POLYGON,
-  SupportedChainId.OPTIMISM,
-  SupportedChainId.ARBITRUM_ONE,
-  SupportedChainId.CELO,
-  SupportedChainId.AURORA,
-  SupportedChainId.BSC,
-  SupportedChainId.AVALANCHE,
-]
 
 /**
  * All the chain IDs that are running the Ethereum protocol.
@@ -132,6 +105,7 @@ export const L2_CHAIN_IDS = [
   SupportedChainId.ARBITRUM_RINKEBY,
   SupportedChainId.OPTIMISM,
   SupportedChainId.OPTIMISM_GOERLI,
+  SupportedChainId.BASE,
 ] as const
 
 export type SupportedL2ChainId = typeof L2_CHAIN_IDS[number]

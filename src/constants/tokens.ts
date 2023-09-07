@@ -145,6 +145,13 @@ export const USDC_AVALANCHE = new Token(
   'USDC',
   'USD Coin'
 )
+export const USDC_BASE = new Token(
+  SupportedChainId.BASE,
+  '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  6,
+  'USDC',
+  'USD Coin'
+)
 export const AMPL = new Token(
   SupportedChainId.MAINNET,
   '0xD46bA6D942050d489DBd938a2C909A5d5039A161',
@@ -194,6 +201,7 @@ export const USDC: { [chainId in SupportedChainId]: Token } = {
   [SupportedChainId.AURORA_TESTNET]: USDC_AURORA_TESTNET,
   [SupportedChainId.BSC]: USDC_BSC,
   [SupportedChainId.AVALANCHE]: USDC_AVALANCHE,
+  [SupportedChainId.BASE]: USDC_BASE,
 }
 export const DAI_POLYGON = new Token(
   SupportedChainId.POLYGON,
@@ -405,6 +413,13 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
   ...(WETH9 as Record<SupportedChainId, Token>),
   [SupportedChainId.CELO]: CELO_CELO,
   [SupportedChainId.CELO_ALFAJORES]: CELO_CELO_ALFAJORES,
+  [SupportedChainId.BASE]: new Token(
+    SupportedChainId.BASE,
+    '0x4200000000000000000000000000000000000006',
+    18,
+    'WETH',
+    'Wrapped Ether'
+  ),
   [SupportedChainId.OPTIMISM]: new Token(
     SupportedChainId.OPTIMISM,
     '0x4200000000000000000000000000000000000006',
