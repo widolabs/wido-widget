@@ -66,8 +66,9 @@ export function TestableProvider({ list, children }: PropsWithChildren<{ list: T
 }
 
 export function Provider({ children }: PropsWithChildren<{ list?: string | TokenInfo[] }>) {
+  const localStorageHandlers = useMemo(() => createLocalStorageHandlers<Token[]>('wido_tokens'), [])
   const { saveToLocalStorage: saveTokensToLocalStorage, getFromLocalStorage: getTokensFromLocalStorage } =
-    createLocalStorageHandlers<Token[]>('wido_tokens')
+    localStorageHandlers
 
   const tokensFromLocalStorage = getTokensFromLocalStorage()
   const [chainTokenMap, setChainTokenMap] = useState<ChainTokenMap>(
@@ -88,32 +89,18 @@ export function Provider({ children }: PropsWithChildren<{ list?: string | Token
 
   const throwError = useAsyncError()
   useEffect(() => {
-    // If the list was already loaded, don't reload it.
-    if (chainTokenMap && Object.keys(chainTokenMap).length > 0) return
-
-    let stale = false
-    activateList()
-    return () => {
-      stale = true
-    }
-
-    async function activateList() {
+    fetchTokens()
+    async function fetchTokens() {
       try {
         const tokens = await getSupportedTokens()
         saveTokensToLocalStorage(tokens)
-        // tokensToChainTokenMap also caches the fetched tokens, so it must be invoked even if stale.
         const map = tokensToChainTokenMap(tokens)
-        if (!stale) {
-          setChainTokenMap(map)
-        }
+        setChainTokenMap(map)
       } catch (e: unknown) {
-        if (!stale) {
-          // Do not update the token map, in case the map was already resolved without error on mainnet.
-          throwError(e as Error)
-        }
+        throwError(e as Error)
       }
     }
-  }, [chainTokenMap, resolver, saveTokensToLocalStorage, throwError])
+  }, [saveTokensToLocalStorage, throwError])
 
   return <ChainTokenMapContext.Provider value={chainTokenMap}>{children}</ChainTokenMapContext.Provider>
 }
