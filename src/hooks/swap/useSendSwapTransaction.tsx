@@ -38,7 +38,7 @@ export default function useSendSwapTransaction(
             chainId: trade.fromToken.chainId as ChainId,
             toChainId: trade.toToken.chainId,
             fromToken: trade.fromToken.wrapped.address,
-            toToken: trade.fromToken.wrapped.address,
+            toToken: trade.toToken.wrapped.address,
             amount: trade.inputAmount.quotient.toString(),
           })
 
