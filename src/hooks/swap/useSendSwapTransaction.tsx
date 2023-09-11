@@ -36,8 +36,9 @@ export default function useSendSwapTransaction(
         callback: async function onSwap(): Promise<ExecTxResponse> {
           const approveTx = await approve({
             chainId: trade.fromToken.chainId as ChainId,
+            toChainId: trade.toToken.chainId,
             fromToken: trade.fromToken.wrapped.address,
-            toToken: trade.fromToken.wrapped.address,
+            toToken: trade.toToken.wrapped.address,
             amount: trade.inputAmount.quotient.toString(),
           })
 
