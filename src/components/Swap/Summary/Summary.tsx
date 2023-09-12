@@ -3,7 +3,7 @@ import EtherscanLink from 'components/EtherscanLink'
 import Tooltip from 'components/Tooltip'
 import { getChainInfo } from 'constants/chainInfo'
 import { PriceImpact } from 'hooks/usePriceImpact'
-import { ArrowDown, ArrowRight, ExternalLink as ExternalLinkIcon } from 'icons'
+import { AlertTriangle, ArrowDown, ArrowRight, Check, ExternalLink as ExternalLinkIcon } from 'icons'
 import { PropsWithChildren } from 'react'
 import { Fragment } from 'react'
 import styled from 'styled-components/macro'
@@ -24,9 +24,10 @@ interface TokenValueProps {
   usdc?: CurrencyAmount<Currency>
   open: boolean
   txHash?: string
+  icon?: 'success' | 'error'
 }
 
-function TokenValue({ input, usdc, open, children, txHash }: PropsWithChildren<TokenValueProps>) {
+function TokenValue({ input, usdc, open, children, txHash, icon }: PropsWithChildren<TokenValueProps>) {
   const chainInfo = getChainInfo(input.currency.chainId)
 
   const Wrapper = txHash
@@ -39,6 +40,7 @@ function TokenValue({ input, usdc, open, children, txHash }: PropsWithChildren<T
         >
           {children}
           on {chainInfo?.label}
+          {icon !== undefined ? icon === 'error' ? <AlertTriangle color="error" /> : <Check color="primary" /> : null}
           <Tooltip placement="top" contained icon={ExternalLinkIcon}>
             <ThemedText.Caption>View on block explorer</ThemedText.Caption>
           </Tooltip>
@@ -78,6 +80,7 @@ interface SummaryProps {
   srcTxHash?: string
   dstTxHash?: string
   isSingleChain?: boolean
+  isPartiallySuccessful?: boolean
 }
 
 export default function Summary({
@@ -89,6 +92,7 @@ export default function Summary({
   srcTxHash,
   dstTxHash,
   isSingleChain,
+  isPartiallySuccessful,
 }: SummaryProps) {
   const open = false
 
@@ -112,9 +116,21 @@ export default function Summary({
     </>
   ) : (
     <>
-      <TokenValue input={input} usdc={inputUSDC} open={open} txHash={srcTxHash} />
+      <TokenValue
+        input={input}
+        usdc={inputUSDC}
+        open={open}
+        txHash={srcTxHash}
+        icon={isPartiallySuccessful ? 'success' : undefined}
+      />
       {open ? <ArrowRight /> : <ArrowDown />}
-      <TokenValue input={output} usdc={outputUSDC} open={open} txHash={dstTxHash}>
+      <TokenValue
+        input={output}
+        usdc={outputUSDC}
+        open={open}
+        txHash={dstTxHash}
+        icon={isPartiallySuccessful ? 'error' : undefined}
+      >
         {impact && <ThemedText.Caption color={impact.warning}>({impact.toString()})</ThemedText.Caption>}
       </TokenValue>
     </>

@@ -84,12 +84,11 @@ export default function Swap(props: SwapProps) {
     getStatus({
       chainId: tx.info.trade.fromToken.chainId,
       txHash: tx.receipt.transactionHash,
-    }).then(({ status, toTxHash, substatus }) => {
-      if (status === 'success') {
-        setTxCompleted(true)
-      }
+    }).then(({ status, toTxHash, substatus, substatusMessage }) => {
+      if (status === 'success') setTxCompleted(true)
+      if (status === 'success' && substatus === undefined) setDstTxSubStatus('completed')
+      else setDstTxSubStatus(substatus)
       setDstTxHash(toTxHash)
-      setDstTxSubStatus(substatus)
     })
   }, [tx, txCompleted, timer])
 

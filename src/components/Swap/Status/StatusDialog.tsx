@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import ErrorDialog, { StatusHeader } from 'components/Error/ErrorDialog'
 import SwapSummary from 'components/Swap/Summary'
+import { getChainInfo } from 'constants/chainInfo'
 import { MS_IN_SECOND } from 'constants/misc'
 import { LargeAlert, LargeArrow, LargeCheck, LargeSpinner, LargeWarning } from 'icons'
 import { useEffect, useMemo, useState } from 'react'
@@ -21,6 +22,12 @@ function TransactionStatus({ tx, onClose, dstTxHash, dstTxSubStatus }: Transacti
   const fromChainId = (tx.info as SwapTransactionInfo).trade.fromToken.chainId
   const toChainId = (tx.info as SwapTransactionInfo).trade.toToken.chainId
   const isSingleChain = fromChainId === toChainId
+  const toChainInfo = getChainInfo(toChainId)
+
+  const isPartiallySuccessful = useMemo(
+    () => !!tx.receipt?.status && !!dstTxHash && dstTxSubStatus !== 'completed',
+    [dstTxHash, dstTxSubStatus, tx.receipt?.status]
+  )
 
   const [showConfirmation, setShowConfirmation] = useState(true)
   const Icon = useMemo(() => {
@@ -87,8 +94,19 @@ function TransactionStatus({ tx, onClose, dstTxHash, dstTxSubStatus }: Transacti
     if (tx.receipt?.status && dstTxHash && dstTxSubStatus === 'failed') {
       return <Trans>Your transaction was Unsuccessful</Trans>
     }
-    if (tx.receipt?.status && dstTxHash && dstTxSubStatus !== 'completed') {
-      return <Trans>Your transaction was partially successful</Trans>
+    if (isPartiallySuccessful) {
+      return tx.info.type === TransactionType.SWAP ? (
+        <Trans>
+          Your funds were successfully bridged,
+          <br />
+          but the transaction on {toChainInfo?.label} failed.
+          <br />
+          <br />
+          To finalise your Zap, swap your tokens to {tx.info.trade.toToken.symbol} on {toChainInfo?.label}.
+        </Trans>
+      ) : (
+        <Trans>Your transaction was partially successful</Trans>
+      )
     }
     if (tx.receipt?.status && dstTxHash) {
       return <Trans>Your transaction was successful</Trans>
@@ -97,10 +115,10 @@ function TransactionStatus({ tx, onClose, dstTxHash, dstTxSubStatus }: Transacti
       return <Trans>Waiting for the transaction...</Trans>
     }
     return <Trans>Waiting for the first transaction...</Trans>
-  }, [tx.receipt?.status, dstTxHash, isSingleChain, dstTxSubStatus])
+  }, [tx.receipt?.status, dstTxHash, isSingleChain, dstTxSubStatus, isPartiallySuccessful])
 
   return (
-    <Column flex padded gap={0.75} align="stretch" style={{ height: '100%' }}>
+    <Column flex padded gap={0.75} align="stretch" style={{ height: '100%', maxWidth: '100%' }}>
       <StatusHeader
         icon={Icon}
         iconColor={tx.receipt?.status ? (dstTxSubStatus !== 'completed' ? 'warning' : 'success') : undefined}
@@ -113,9 +131,10 @@ function TransactionStatus({ tx, onClose, dstTxHash, dstTxSubStatus }: Transacti
             srcTxHash={tx.info.response.hash}
             dstTxHash={dstTxHash}
             isSingleChain={isSingleChain}
+            isPartiallySuccessful={isPartiallySuccessful}
           />
         ) : null}
-        <ThemedText.Subhead1>{subheading}</ThemedText.Subhead1>
+        <ThemedText.Subhead1 sx={{ maxWidth: '100%', whiteSpace: 'normal' }}>{subheading}</ThemedText.Subhead1>
       </StatusHeader>
       <ActionButton onClick={onClose}>
         <Trans>Close</Trans>
