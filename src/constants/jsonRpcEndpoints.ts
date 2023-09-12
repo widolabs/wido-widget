@@ -93,4 +93,8 @@ export const JSON_RPC_FALLBACK_ENDPOINTS: Record<SupportedChainId, string[]> = {
     // "Safe" URLs
     'https://avalanche-c-chain.publicnode.com',
   ],
+  [SupportedChainId.BASE]: [
+    // "Safe" URLs
+    'https://mainnet.base.org',
+  ],
 }

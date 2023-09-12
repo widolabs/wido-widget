@@ -145,6 +145,13 @@ export const USDC_AVALANCHE = new Token(
   'USDC',
   'USD Coin'
 )
+export const USDC_BASE = new Token(
+  SupportedChainId.BASE,
+  '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913',
+  6,
+  'USDC',
+  'USD Coin'
+)
 export const AMPL = new Token(
   SupportedChainId.MAINNET,
   '0xD46bA6D942050d489DBd938a2C909A5d5039A161',
@@ -194,6 +201,7 @@ export const USDC: { [chainId in SupportedChainId]: Token } = {
   [SupportedChainId.AURORA_TESTNET]: USDC_AURORA_TESTNET,
   [SupportedChainId.BSC]: USDC_BSC,
   [SupportedChainId.AVALANCHE]: USDC_AVALANCHE,
+  [SupportedChainId.BASE]: USDC_BASE,
 }
 export const DAI_POLYGON = new Token(
   SupportedChainId.POLYGON,
@@ -405,6 +413,13 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
   ...(WETH9 as Record<SupportedChainId, Token>),
   [SupportedChainId.CELO]: CELO_CELO,
   [SupportedChainId.CELO_ALFAJORES]: CELO_CELO_ALFAJORES,
+  [SupportedChainId.BASE]: new Token(
+    SupportedChainId.BASE,
+    '0x4200000000000000000000000000000000000006',
+    18,
+    'WETH',
+    'Wrapped Ether'
+  ),
   [SupportedChainId.OPTIMISM]: new Token(
     SupportedChainId.OPTIMISM,
     '0x4200000000000000000000000000000000000006',
@@ -447,6 +462,27 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
     'WMATIC',
     'Wrapped MATIC'
   ),
+  [SupportedChainId.BSC]: new Token(
+    SupportedChainId.BSC,
+    '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+    18,
+    'WBNB',
+    'Wrapped BNB'
+  ),
+  [SupportedChainId.FANTOM]: new Token(
+    SupportedChainId.FANTOM,
+    '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+    18,
+    'WFTM',
+    'Wrapped FTM'
+  ),
+  [SupportedChainId.AVALANCHE]: new Token(
+    SupportedChainId.AVALANCHE,
+    '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
+    18,
+    'WAVAX',
+    'Wrapped AVAX'
+  ),
 }
 
 export function isCelo(chainId: number): chainId is SupportedChainId.CELO | SupportedChainId.CELO_ALFAJORES {
@@ -468,6 +504,18 @@ function isMatic(chainId: number): chainId is SupportedChainId.POLYGON | Support
   return chainId === SupportedChainId.POLYGON_MUMBAI || chainId === SupportedChainId.POLYGON
 }
 
+function isBSC(chainId: number): boolean {
+  return chainId === SupportedChainId.BSC
+}
+
+function isFantom(chainId: number): boolean {
+  return chainId === SupportedChainId.FANTOM
+}
+
+function isAvalanche(chainId: number): boolean {
+  return chainId === SupportedChainId.AVALANCHE
+}
+
 class MaticNativeCurrency extends NativeCurrency {
   equals(other: Currency): boolean {
     return other.isNative && other.chainId === this.chainId
@@ -483,6 +531,60 @@ class MaticNativeCurrency extends NativeCurrency {
   public constructor(chainId: number) {
     if (!isMatic(chainId)) throw new Error('Not matic')
     super(chainId, 18, 'MATIC', 'Polygon Matic')
+  }
+}
+
+class BSCNativeCurrency extends NativeCurrency {
+  equals(other: Currency): boolean {
+    return other.isNative && other.chainId === this.chainId
+  }
+
+  get wrapped(): Token {
+    if (!isBSC(this.chainId)) throw new Error('Not BSC')
+    const wrapped = WRAPPED_NATIVE_CURRENCY[this.chainId]
+    invariant(wrapped instanceof Token)
+    return wrapped
+  }
+
+  public constructor(chainId: number) {
+    if (!isBSC(chainId)) throw new Error('Not BSC')
+    super(chainId, 18, 'BNB', 'BNB')
+  }
+}
+
+class FantomNativeCurrency extends NativeCurrency {
+  equals(other: Currency): boolean {
+    return other.isNative && other.chainId === this.chainId
+  }
+
+  get wrapped(): Token {
+    if (!isFantom(this.chainId)) throw new Error('Not Fantom')
+    const wrapped = WRAPPED_NATIVE_CURRENCY[this.chainId]
+    invariant(wrapped instanceof Token)
+    return wrapped
+  }
+
+  public constructor(chainId: number) {
+    if (!isFantom(chainId)) throw new Error('Not Fantom')
+    super(chainId, 18, 'FTM', 'FTM')
+  }
+}
+
+class AvalancheNativeCurrency extends NativeCurrency {
+  equals(other: Currency): boolean {
+    return other.isNative && other.chainId === this.chainId
+  }
+
+  get wrapped(): Token {
+    if (!isAvalanche(this.chainId)) throw new Error('Not Avalanche')
+    const wrapped = WRAPPED_NATIVE_CURRENCY[this.chainId]
+    invariant(wrapped instanceof Token)
+    return wrapped
+  }
+
+  public constructor(chainId: number) {
+    if (!isAvalanche(chainId)) throw new Error('Not Avalanche')
+    super(chainId, 18, 'AVAX', 'AVAX')
   }
 }
 
@@ -508,6 +610,12 @@ export function nativeOnChain(chainId: number): NativeCurrency | Token {
     nativeCurrency = new MaticNativeCurrency(chainId)
   } else if (isCelo(chainId)) {
     nativeCurrency = getCeloNativeCurrency(chainId)
+  } else if (isBSC(chainId)) {
+    nativeCurrency = new BSCNativeCurrency(chainId)
+  } else if (isFantom(chainId)) {
+    nativeCurrency = new FantomNativeCurrency(chainId)
+  } else if (isAvalanche(chainId)) {
+    nativeCurrency = new AvalancheNativeCurrency(chainId)
   } else {
     nativeCurrency = ExtendedEther.onChain(chainId)
   }

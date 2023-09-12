@@ -33,7 +33,7 @@ const ToolbarRow = styled(Row)<{ isExpandable?: true }>`
   cursor: ${({ isExpandable }) => isExpandable && 'pointer'};
   flex-wrap: nowrap;
   gap: 0.5em;
-  height: ${COLLAPSED_TOOLBAR_HEIGHT_EM}em;
+  min-height: ${COLLAPSED_TOOLBAR_HEIGHT_EM}em;
   padding: 0.75em;
 `
 

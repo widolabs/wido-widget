@@ -17,6 +17,7 @@ const ETHERSCAN_PREFIXES: { [chainId: number]: string } = {
   [SupportedChainId.AURORA_TESTNET]: 'https://explorer.testnet.aurora.dev',
   [SupportedChainId.BSC]: 'https://bscscan.com/',
   [SupportedChainId.AVALANCHE]: 'https://snowtrace.io/',
+  [SupportedChainId.BASE]: 'https://basescan.org/',
 }
 
 export enum ExplorerDataType {

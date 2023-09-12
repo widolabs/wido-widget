@@ -3,6 +3,7 @@ import EthereumLogo from 'assets/images/ethereum-logo.png'
 import arbitrumLogoUrl from 'assets/svg/arbitrum_logo.svg'
 import AuroraLogo from 'assets/svg/aurora-logo.svg'
 import avalancheLogo from 'assets/svg/avalanche-logo.svg'
+import baseLogo from 'assets/svg/base-logo.svg'
 import BscLogo from 'assets/svg/bsc-logo.svg'
 import CeloLogo from 'assets/svg/celo_logo.svg'
 import fantomLogo from 'assets/svg/fantom-logo.svg'
@@ -15,7 +16,7 @@ import { useMemo } from 'react'
 
 import { isCelo, nativeOnChain } from '../constants/tokens'
 
-type Network = 'ethereum' | 'arbitrum' | 'optimism' | 'aurora' | 'bsc' | 'avalanche'
+type Network = 'ethereum' | 'arbitrum' | 'optimism' | 'aurora' | 'bsc' | 'avalanche' | 'base'
 
 function chainIdToNetworkName(networkId: SupportedChainId): Network {
   switch (networkId) {
@@ -31,6 +32,8 @@ function chainIdToNetworkName(networkId: SupportedChainId): Network {
       return ChainName.BSC
     case SupportedChainId.AVALANCHE:
       return ChainName.AVALANCHE
+    case SupportedChainId.BASE:
+      return ChainName.BASE
     default:
       return 'ethereum'
   }
@@ -60,6 +63,8 @@ export function getNativeLogoURI(chainId: SupportedChainId = SupportedChainId.MA
       return BscLogo
     case SupportedChainId.AVALANCHE:
       return avalancheLogo
+    case SupportedChainId.BASE:
+      return baseLogo
     default:
       return EthereumLogo
   }

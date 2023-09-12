@@ -4,6 +4,7 @@ import { SupportedChainId, VISIBLE_CHAIN_IDS } from 'constants/chains'
 import { useEvmChainId, useEvmProvider, widgetSettingsAtom } from 'hooks/useSyncWidgetSettings'
 import { useAtomValue } from 'jotai/utils'
 import { createContext, PropsWithChildren, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { createLocalStorageHandlers } from 'utils/localStorage'
 import resolveENSContentHash from 'utils/resolveENSContentHash'
 import { getSupportedTokens, Token } from 'wido'
 
@@ -64,9 +65,15 @@ export function TestableProvider({ list, children }: PropsWithChildren<{ list: T
   return <ChainTokenMapContext.Provider value={chainTokenMap}>{children}</ChainTokenMapContext.Provider>
 }
 
-export function Provider({ list, children }: PropsWithChildren<{ list?: string | TokenInfo[] }>) {
-  const [chainTokenMap, setChainTokenMap] = useState<ChainTokenMap>({})
-  useEffect(() => setChainTokenMap({}), [list])
+export function Provider({ children }: PropsWithChildren<{ list?: string | TokenInfo[] }>) {
+  const localStorageHandlers = useMemo(() => createLocalStorageHandlers<Token[]>('wido_tokens'), [])
+  const { saveToLocalStorage: saveTokensToLocalStorage, getFromLocalStorage: getTokensFromLocalStorage } =
+    localStorageHandlers
+
+  const tokensFromLocalStorage = getTokensFromLocalStorage()
+  const [chainTokenMap, setChainTokenMap] = useState<ChainTokenMap>(
+    tokensFromLocalStorage ? tokensToChainTokenMap(tokensFromLocalStorage) : {}
+  )
 
   const chainId = useEvmChainId()
   const provider = useEvmProvider()
@@ -82,31 +89,18 @@ export function Provider({ list, children }: PropsWithChildren<{ list?: string |
 
   const throwError = useAsyncError()
   useEffect(() => {
-    // If the list was already loaded, don't reload it.
-    if (chainTokenMap && Object.keys(chainTokenMap).length > 0) return
-
-    let stale = false
-    activateList()
-    return () => {
-      stale = true
-    }
-
-    async function activateList() {
+    fetchTokens()
+    async function fetchTokens() {
       try {
         const tokens = await getSupportedTokens()
-        // tokensToChainTokenMap also caches the fetched tokens, so it must be invoked even if stale.
+        saveTokensToLocalStorage(tokens)
         const map = tokensToChainTokenMap(tokens)
-        if (!stale) {
-          setChainTokenMap(map)
-        }
+        setChainTokenMap(map)
       } catch (e: unknown) {
-        if (!stale) {
-          // Do not update the token map, in case the map was already resolved without error on mainnet.
-          throwError(e as Error)
-        }
+        throwError(e as Error)
       }
     }
-  }, [chainTokenMap, list, resolver, throwError])
+  }, [saveTokensToLocalStorage, throwError])
 
   return <ChainTokenMapContext.Provider value={chainTokenMap}>{children}</ChainTokenMapContext.Provider>
 }
