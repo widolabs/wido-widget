@@ -15719,10 +15719,10 @@ wide-align@^1.1.5:
   dependencies:
     string-width "^1.0.2 || 2 || 3 || 4"
 
-wido@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/wido/-/wido-0.4.0.tgz#eab47cae7dfbc3b30f8f3503a90168990faebc49"
-  integrity sha512-P0E1FdEonBs+00DbP7GOk8Bjjp43NwsPOGvfqwmE0V0p5w00p41BfAlAAmViXB5vtu09OsK9aGigS0M/4QJ/vw==
+wido@0.4.1:
+  version "0.4.1"
+  resolved "https://registry.yarnpkg.com/wido/-/wido-0.4.1.tgz#c67a9d93b6670f4530393c9dfb94d356d6ee7dcd"
+  integrity sha512-mRUA8JUjTKTbD2bxH18hHoEiO/T81ROzBTuul61JVmiiydBerYRDVpIC5SrqdphnaeGSi9+CKhOuJzAKtKemjg==
   dependencies:
     "@biconomy/core-types" "^3.0.0-alpha.0"
     "@biconomy/paymaster" "^3.0.0-alpha.0"

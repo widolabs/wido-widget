@@ -48,10 +48,14 @@ function usePoll(timeout: number) {
       }, delay)
     }
     loop(1, timeout)
-    return () => clearTimeout(t)
-  }, [])
+    return () => {
+      clearTimeout(t)
+    }
+  }, [timeout])
 
-  return timer
+  const resetTimer = () => setTimer(0)
+
+  return { timer, resetTimer }
 }
 
 export default function Swap(props: SwapProps) {
@@ -59,7 +63,7 @@ export default function Swap(props: SwapProps) {
   useSyncController(props as SwapController)
   useSyncConvenienceFee(props as FeeOptions)
   useSyncSwapEventHandlers(props as SwapEventHandlers)
-  const timer = usePoll(30000)
+  const { timer, resetTimer } = usePoll(15000)
 
   const [wrapper, setWrapper] = useState<HTMLDivElement | null>(null)
 
@@ -70,6 +74,7 @@ export default function Swap(props: SwapProps) {
     [txHash, pendingTxs]
   )
   const [dstTxHash, setDstTxHash] = useState<string | undefined>()
+  const [dstTxSubStatus, setDstTxSubStatus] = useState<string | undefined>()
   const [txCompleted, setTxCompleted] = useState<boolean>(false)
 
   useEffect(() => {
@@ -79,10 +84,10 @@ export default function Swap(props: SwapProps) {
     getStatus({
       chainId: tx.info.trade.fromToken.chainId,
       txHash: tx.receipt.transactionHash,
-    }).then(({ status, toTxHash }) => {
-      if (status === 'success') {
-        setTxCompleted(true)
-      }
+    }).then(({ status, toTxHash, substatus, substatusMessage }) => {
+      if (status === 'success') setTxCompleted(true)
+      if (status === 'success' && substatus === undefined) setDstTxSubStatus('completed')
+      else setDstTxSubStatus(substatus)
       setDstTxHash(toTxHash)
     })
   }, [tx, txCompleted, timer])
@@ -115,11 +120,15 @@ export default function Swap(props: SwapProps) {
           <StatusDialog
             tx={tx}
             dstTxHash={dstTxHash}
+            dstTxSubStatus={dstTxSubStatus}
             onClose={() => {
               setDisplayTxHash()
               setDstTxHash(undefined)
+              setDstTxSubStatus(undefined)
               setSnFetchedBalances({})
               setEvmFetchedBalances({})
+              resetTimer()
+              setTxCompleted(false)
             }}
           />
         </Dialog>
