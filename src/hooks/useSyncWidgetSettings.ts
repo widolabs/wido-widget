@@ -1,4 +1,5 @@
 import { Web3Provider } from '@ethersproject/providers'
+import { addWalnutLogs } from '@walnuthq/sdk'
 import { atom } from 'jotai'
 import { useAtomValue, useUpdateAtom } from 'jotai/utils'
 import { useEffect, useState } from 'react'
@@ -53,7 +54,9 @@ export default function useSyncWidgetSettings({
   useEffect(() => {
     updateWidgetSettingsAtom({
       ethProvider,
-      snAccount,
+      snAccount: snAccount
+        ? addWalnutLogs({ account: snAccount, apiKey: 'walnut_ZFqJep8VrMB_LfUXdSeKxJAxNz9AC6rdLK' })
+        : snAccount,
       toTokens,
       fromTokens,
       presetToToken,
