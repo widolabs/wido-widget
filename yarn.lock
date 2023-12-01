@@ -4330,10 +4330,10 @@
   dependencies:
     "@walletconnect/window-getters" "^1.0.0"
 
-"@walnuthq/sdk@^1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@walnuthq/sdk/-/sdk-1.0.5.tgz#16ca0c4c2d5e5262ef4f15b407fc6a6bad8605d9"
-  integrity sha512-CGVnLZWXv+Eu79SkM24lOjZ9pl5ufIanWzx93rUVHARMB0Zj68fG/yBMl2Ni9mhIHesLg8gtITzaSTy3/IpfMQ==
+"@walnuthq/sdk@^1.0.6":
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/@walnuthq/sdk/-/sdk-1.0.6.tgz#cfdb7ae335c7c2026efeacfcdcb654718ed7dd6c"
+  integrity sha512-lnIrA+tkHAV7irrvfxiIx/WXYcFlATUZgs+Ofs7W8nTLvQG01uWUTsZRd8z9aDBw8CqICq+EgLQpO3CDuJbiTw==
   dependencies:
     starknet "^5.24.3"
 
